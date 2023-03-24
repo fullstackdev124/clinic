@@ -4,6 +4,7 @@ export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new ClinicApplication(options);
+  await app.restServer.basePath("/api/v1");
   await app.boot();
   await app.start();
 

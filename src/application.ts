@@ -8,6 +8,7 @@ import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
+import {ApiService} from './services';
 
 export {ApplicationConfig};
 
@@ -39,5 +40,8 @@ export class ClinicApplication extends BootMixin(
         nested: true,
       },
     };
+
+    // register api service to application
+    this.service(ApiService);
   }
 }
