@@ -49,7 +49,12 @@ export class ApiService {
 
       // re-construct clinic object
       clinics.forEach((item: any) => {
-        let obj: Clinic = { name: item.name }
+        let obj: Clinic = new Clinic()
+        // get name
+        if (item.name)
+          obj.name = item.name
+        else if (item.clinicName)
+          obj.name = item.clinicName
 
         // get state
         if (item.state)
@@ -99,25 +104,40 @@ export class ApiService {
     else {
       // search by criteria
       sources.forEach((item: Clinic) => {
-        let is = false
+        // count of criteria
+        let total = 0, success = 0
 
         // if contains name
-        if (filter.name)
-          is = item.name.toLowerCase().includes(filter.name.toLowerCase())
+        if (filter.name) {
+          total++
+          success += item.name.toLowerCase().includes(filter.name.toLowerCase()) ? 1 : 0
+        }
 
         // if contains state
-        if (filter.state)
-          is = item.state!=null && item.state?.toLowerCase().includes(filter.state.toLowerCase())
+        if (filter.state) {
+          total++
+          success += item.state!=null && item.state?.toLowerCase().includes(filter.state.toLowerCase()) ? 1 : 0
+        }
 
         if (filter.from || filter.to) {
           const from = DataUtils.parseAvailability(filter.from!)
           const to = DataUtils.parseAvailability(filter.to!)
 
-          is = from!=null && item.from!=null && item.from.value!>=from.value!
-          is = to!=null && item.to!=null && item.to.value!<=to.value!
+          // "from" is in criteria
+          if (from!=null) {
+            total++
+            success += item.from!=null && item.from.value!<=from.value! ? 1 : 0
+          }
+
+          // "to" is in criteria
+          if (to!=null) {
+            total++
+            success += item.to!=null && item.to.value!>=to.value! ? 1 : 0
+          }
         }
 
-        if (is)
+        // compare total criteria and matched criteria
+        if (total == success)
           filtered.push(item)
       })
     }
