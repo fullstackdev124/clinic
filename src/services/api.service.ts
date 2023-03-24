@@ -146,6 +146,7 @@ export class ApiService {
     filtered.forEach((item: Clinic) => {
       const obj: ClinicResponse = { name: item.name, state: item.state }
 
+      // make availability as "00:00 ~ 01:00" format
       obj.availability = ""
       if (item.from != undefined)
         obj.availability = item.from.at!

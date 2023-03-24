@@ -98,7 +98,7 @@ export class ApiController {
 
     // if no clinics, show error message
     if (sources.length==0)
-      throw new HttpErrors.BadRequest("No Clinics")
+      throw new HttpErrors.BadRequest("No Clinics. It might be wrong provider URL or error in network connection. Please try again later...")
 
     // search
     return this.apiService.search(sources, req.filter!)
