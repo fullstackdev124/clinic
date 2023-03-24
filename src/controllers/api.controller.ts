@@ -1,7 +1,4 @@
-// Uncomment these imports to begin using these cool features!
-
-// import {inject} from '@loopback/core';
-import {post, requestBody, response} from "@loopback/rest";
+import {HttpErrors, post, requestBody, response} from '@loopback/rest';
 
 import {service} from '@loopback/core';
 import {ApiService} from '../services';
@@ -9,6 +6,9 @@ import {ClinicRequest} from '../model/clinic.request';
 import {ClinicResponse} from '../model/clinic-response';
 import {Clinic} from '../model';
 
+/**
+ * API Endpoint
+ */
 export class ApiController {
   constructor(
     @service(ApiService) public apiService: ApiService,
@@ -93,15 +93,14 @@ export class ApiController {
     })
     req: ClinicRequest,
   ): Promise<ClinicResponse[]> {
-    // init response
-    const res: ClinicResponse[] = []
-
     // clinic sources to retrieve clinic from provider url
     const sources = await this.apiService.getSources(req.providers)
 
-    console.log(sources)
+    // if no clinics, show error message
+    if (sources.length==0)
+      throw new HttpErrors.BadRequest("No Clinics")
 
-    return res
+    // search
+    return this.apiService.search(sources, req.filter!)
   }
-
 }

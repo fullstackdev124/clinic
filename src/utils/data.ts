@@ -8,7 +8,7 @@ export class DataUtils {
    */
   static parseAvailability(availability: string): Time | undefined {
     // if not valid format
-    if (availability.length != 5)
+    if (availability == null || availability.length != 5)
       return undefined
 
     // get hour and minute

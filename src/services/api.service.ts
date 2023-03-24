@@ -2,6 +2,8 @@ import {injectable, /* inject, */ BindingScope} from '@loopback/core';
 import axios from 'axios';
 import {Clinic} from '../model';
 import {DataUtils} from '../utils/data';
+import {ClinicFilter} from '../model/clinic-filter';
+import {ClinicResponse} from '../model/clinic-response';
 
 /**
  * API service
@@ -80,6 +82,62 @@ export class ApiService {
   }
 
 
+  /**
+   * Search clinic by specific criteria
+   * @param sources list of clinic
+   * @param filter criteria
+   * @return list of clinics filtered by criteria
+   */
+  async search(sources: Clinic[], filter: ClinicFilter): Promise<ClinicResponse[]> {
+    const res: ClinicResponse[] = []
+    let filtered: Clinic[] = []
+
+    // no filter criteria
+    if (filter == undefined) {
+      filtered = [ ... sources ]
+    }
+    else {
+      // search by criteria
+      sources.forEach((item: Clinic) => {
+        let is = false
+
+        // if contains name
+        if (filter.name)
+          is = item.name.toLowerCase().includes(filter.name.toLowerCase())
+
+        // if contains state
+        if (filter.state)
+          is = item.state!=null && item.state?.toLowerCase().includes(filter.state.toLowerCase())
+
+        if (filter.from || filter.to) {
+          const from = DataUtils.parseAvailability(filter.from!)
+          const to = DataUtils.parseAvailability(filter.to!)
+
+          is = from!=null && item.from!=null && item.from.value!>=from.value!
+          is = to!=null && item.to!=null && item.to.value!<=to.value!
+        }
+
+        if (is)
+          filtered.push(item)
+      })
+    }
+
+    // re-construct response
+    filtered.forEach((item: Clinic) => {
+      const obj: ClinicResponse = { name: item.name, state: item.state }
+
+      obj.availability = ""
+      if (item.from != undefined)
+        obj.availability = item.from.at!
+
+      if (item.to != undefined)
+        obj.availability += " ~ " + item.to.at!
+
+      res.push(obj)
+    })
+
+    return res
+  }
 
 
 
